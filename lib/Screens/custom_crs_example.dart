@@ -1,5 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 //import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
@@ -25,10 +27,8 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
   // TW proj4.Point KBHpoint = proj4.Point(x: 58.47, y: 16.16); // TopRight    ->
   // TW proj4.Point KBHpoint = proj4.Point(x: 51.22, y: 16.16); // BottomRight ->
   // TW proj4.Point KBHpoint = proj4.Point(x: 58.47 , y: 2.46); // TopLeft     ->
-  proj4.Point KBHpoint = proj4.Point(x: 0  , y: 0);  // 0,0      ->
+  proj4.Point KBHpoint = proj4.Point(x: 0, y: 0); // 0,0      ->
   // TW proj4.Point KBHpoint = proj4.Point(x: 54.6  , y: 9.2);  // Center      ->
-
-
 
   late proj4.Point currentlyUsedPoint = KBHpoint;
 
@@ -49,7 +49,8 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
     // From: http://epsg.io/3413, proj definition: http://epsg.io/3413.proj4
     // Find Projection by name or define it if not exists
 
-    epsg25832 = proj4.Projection.add('EPSG:25832', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +axis=end');
+    epsg25832 = proj4.Projection.add('EPSG:25832',
+        '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +axis=end');
 
     // 9 example zoom level resolutions
     final resolutions = <double>[
@@ -111,16 +112,16 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
 
     // https://pub.dev/documentation/universe/latest/universe/Bounds-class.html
     final epsg25832Bounds = Bounds<double>(
-      const CustomPoint<double>(120000.0, 5600000.0),
-      const CustomPoint<double>(1000000.0, 6500000.0),
+      const Point<double>(120000.0, 5600000.0),
+      const Point<double>(1000000.0, 6500000.0),
       // const CustomPoint<double>(905000.0, 6025000.0),
       // const CustomPoint<double>(420000.0, 6450000.0),
     );
     final epsg4326Bounds = Bounds<double>(
       // TW const CustomPoint<double>(2.48, 51.22),  // (Long, Lat) LeftBottom
       // TW const CustomPoint<double>(16.16, 58.47), // (Long, Lat) RightTop
-      const CustomPoint<double>(2.48, 58.47),  // (Long, Lat) LeftTop (Min)
-      const CustomPoint<double>(16.16, 51.22), // (Long, Lat) RightBottom (Max)
+      const Point<double>(2.48, 58.47), // (Long, Lat) LeftTop (Min)
+      const Point<double>(16.16, 51.22), // (Long, Lat) RightBottom (Max)
     );
 
     print("bottom left: " + epsg25832Bounds.bottomLeft.toString());
@@ -150,7 +151,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
       // @see https://github.com/kartena/Proj4Leaflet/pull/171
       // origins: KBHpoint,
       // TW origins: [const CustomPoint(0, 0)],  // Offset = 0
-      origins: [const CustomPoint(12.568337, 55.676098)],  // CPH in longLat  -> hjørne
+      origins: [const Point(12.568337, 55.676098)], // CPH in longLat  -> hjørne
       // TW origins: [const CustomPoint(2.46, 51.22)],   // LeftBottom           -> gråt
       // TW origins: [const CustomPoint(16.16, 58.47)],  // RightTop             -> gråt
       // TW origins: [const CustomPoint(16.16, 51.22)],  // RightBottom          -> gråt
@@ -159,14 +160,11 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
       // Scale factors (pixels per projection unit, for example pixels/meter) for zoom levels;
       // specify either scales or resolutions, not both
       scales: null,
-      // The transformation to use when transforming projected coordinates into pixel coordinates
-      transformation: null,
     );
-
 
     // Define CRS
     epsg25832CRS = Proj4Crs.fromFactory(
-    // epsg4326CRS = Proj4Crs.fromFactory(
+      // epsg4326CRS = Proj4Crs.fromFactory(
       // CRS code
       code: 'EPSG:25832', //tw
       // your proj4 delegate
@@ -182,12 +180,10 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
       // and some are not at all (use explicit/implicit null or use [CustomPoint(0, 0)])
       // @see https://github.com/kartena/Proj4Leaflet/pull/171
       // origins: KBHpoint,
-      origins: [const CustomPoint(540000, 6100000)],  // CPH (approximately ) in UTM32
+      origins: [const Point(540000, 6100000)], // CPH (approximately ) in UTM32
       // Scale factors (pixels per projection unit, for example pixels/meter) for zoom levels;
       // specify either scales or resolutions, not both
       scales: null,
-      // The transformation to use when transforming projected coordinates into pixel coordinates
-      transformation: null,
     );
 
     //tw  print(epsg25832CRS.getProjectedBounds(0));
@@ -235,26 +231,28 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                 options: MapOptions(
                   // Set the default CRS
                   crs: epsg4326CRS, //tw
-                  center: LatLng(currentlyUsedPoint.x, currentlyUsedPoint.y),
+                  initialCenter:
+                      LatLng(currentlyUsedPoint.x, currentlyUsedPoint.y),
                   // center: proj4.Point(x: 716732.0, y: 6174422.0),
-                  zoom: 0,
+                  initialZoom: 0,
                   // Set maxZoom usually scales.length - 1 OR resolutions.length - 1
                   // but not greater
                   maxZoom: maxZoom,
-                  slideOnBoundaries: true,
                   onTap: (tapPosition, p) => setState(() {
                     initText = 'You clicked at';
-                    currentlyUsedPoint = proj4.Point(x: p.latitude, y: p.longitude);
+                    currentlyUsedPoint =
+                        proj4.Point(x: p.latitude, y: p.longitude);
                   }),
                 ),
                 children: [
                   MarkerLayer(
                     markers: [
                       Marker(
-                        point: LatLng(currentlyUsedPoint.x, currentlyUsedPoint.y),
+                        point:
+                            LatLng(currentlyUsedPoint.x, currentlyUsedPoint.y),
                         width: 80,
                         height: 80,
-                        builder: (context) => FlutterLogo(),
+                        child: FlutterLogo(key: ValueKey('blue')),
                       ),
                     ],
                   ),
