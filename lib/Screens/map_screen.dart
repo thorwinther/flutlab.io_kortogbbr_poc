@@ -47,8 +47,6 @@ class _MapScreenState extends State<MapScreen> {
       4
     ];
 
-
-
     final epsg3413Bounds = Bounds<double>(
       const CustomPoint<double>(-4511619.0, -4511336.0),
       const CustomPoint<double>(4510883.0, 4510996.0),
