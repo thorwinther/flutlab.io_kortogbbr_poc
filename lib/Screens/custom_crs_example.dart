@@ -22,12 +22,12 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
   double? maxZoom;
 
   // Define start center
-  // TW proj4.Point KBHpoint = proj4.Point(x: 55.676098, y: 12.568337); // KBH
+  proj4.Point KBHpoint = proj4.Point(x: 55.676098, y: 12.568337); // KBH
   // TW proj4.Point KBHpoint = proj4.Point(x: 51.22, y: 2.46);  // LeftBottom  ->
   // TW proj4.Point KBHpoint = proj4.Point(x: 58.47, y: 16.16); // TopRight    ->
   // TW proj4.Point KBHpoint = proj4.Point(x: 51.22, y: 16.16); // BottomRight ->
   // TW proj4.Point KBHpoint = proj4.Point(x: 58.47 , y: 2.46); // TopLeft     ->
-  proj4.Point KBHpoint = proj4.Point(x: 0, y: 0); // 0,0      ->
+  // proj4.Point KBHpoint = proj4.Point(x: 0, y: 0); // 0,0      ->
   // TW proj4.Point KBHpoint = proj4.Point(x: 54.6  , y: 9.2);  // Center      ->
 
   late proj4.Point currentlyUsedPoint = KBHpoint;
@@ -53,6 +53,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
         '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs +axis=end');
 
     // 9 example zoom level resolutions
+    /*
     final resolutions = <double>[
       32768,
       16384,
@@ -64,23 +65,24 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
       256,
       128,
     ];
+    */
 
-    // final resolutions = <double>[
-    //   // 3276.8,
-    //   1638.4,
-    //   819.2,
-    //   409.6,
-    //   204.8,
-    //   102.4,
-    //   51.2,
-    //   12.8,
-    //   6.4,
-    //   3.2,
-    //   1.6,
-    //   0.8,
-    //   0.4,
-    //   0.2,
-    // ];
+    final resolutions = <double>[
+      // 3276.8,
+      //1638.4,
+      819.2,
+      409.6,
+      204.8,
+      102.4,
+      51.2,
+      12.8,
+      6.4,
+      3.2,
+      1.6,
+      0.8,
+      0.4,
+      0.2,
+    ];
 
     // final resolutions = <double>[
     //   0.2,
@@ -112,8 +114,8 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
 
     // https://pub.dev/documentation/universe/latest/universe/Bounds-class.html
     final epsg25832Bounds = Bounds<double>(
-      const Point<double>(120000.0, 5600000.0),
-      const Point<double>(1000000.0, 6500000.0),
+      const Point<double>(120000.0, 5661139.2),
+      const Point<double>(1378291.2, 6500000.0),
       // const CustomPoint<double>(905000.0, 6025000.0),
       // const CustomPoint<double>(420000.0, 6450000.0),
     );
@@ -151,7 +153,10 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
       // @see https://github.com/kartena/Proj4Leaflet/pull/171
       // origins: KBHpoint,
       // TW origins: [const CustomPoint(0, 0)],  // Offset = 0
-      origins: [const Point(12.568337, 55.676098)], // CPH in longLat  -> hjørne
+      // TW origins: [const Point(12.568337, 55.676098)], // CPH in longLat  -> hjørne
+      origins: [
+        const Point(12.568337, 55.676098)
+      ], // CPH in longLat // THW 2024-10-20
       // TW origins: [const CustomPoint(2.46, 51.22)],   // LeftBottom           -> gråt
       // TW origins: [const CustomPoint(16.16, 58.47)],  // RightTop             -> gråt
       // TW origins: [const CustomPoint(16.16, 51.22)],  // RightBottom          -> gråt
@@ -180,7 +185,10 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
       // and some are not at all (use explicit/implicit null or use [CustomPoint(0, 0)])
       // @see https://github.com/kartena/Proj4Leaflet/pull/171
       // origins: KBHpoint,
-      origins: [const Point(540000, 6100000)], // CPH (approximately ) in UTM32
+      //origins: [const Point(654500, 6776450)], // CPH (approximately ) in UTM32
+      origins: [
+        const Point(504500, 6376450)
+      ], // THW 2024-10-20 ... actual center of map
       // Scale factors (pixels per projection unit, for example pixels/meter) for zoom levels;
       // specify either scales or resolutions, not both
       scales: null,
@@ -202,7 +210,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
             const Padding(
               padding: EdgeInsets.only(top: 8, bottom: 2),
               child: Text(
-                'This map is in EPSG:4326',
+                'This map is in EPSG:25832',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.blue,
@@ -213,7 +221,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
             Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 2),
               child: Text(
-                '$initText (${currentlyUsedPoint.x.toStringAsFixed(5)}, ${currentlyUsedPoint.y.toStringAsFixed(5)}) in EPSG:4326.',
+                '$initText (${currentlyUsedPoint.x.toStringAsFixed(5)}, ${currentlyUsedPoint.y.toStringAsFixed(5)}) in EPSG:25832.',
               ),
             ),
             //tw Padding(
@@ -230,14 +238,15 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
               child: FlutterMap(
                 options: MapOptions(
                   // Set the default CRS
-                  crs: epsg4326CRS, //tw
+                  crs: epsg25832CRS, // thw 2024-10-20
                   initialCenter:
                       LatLng(currentlyUsedPoint.x, currentlyUsedPoint.y),
-                  // center: proj4.Point(x: 716732.0, y: 6174422.0),
+                  //initialCenter: proj4.Point(x: 716732.0, y: 6174422.0),
                   initialZoom: 0,
                   // Set maxZoom usually scales.length - 1 OR resolutions.length - 1
                   // but not greater
-                  maxZoom: maxZoom,
+                  minZoom: 0,
+                  maxZoom: 13,
                   onTap: (tapPosition, p) => setState(() {
                     initText = 'You clicked at';
                     currentlyUsedPoint =
